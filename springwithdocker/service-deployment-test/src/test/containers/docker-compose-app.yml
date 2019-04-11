@@ -1,0 +1,18 @@
+version: "3.5"
+
+services:
+  contact-service:
+    image: c-lrn-restapp
+    ports:
+      - "8090:8080"
+    networks:
+      - common-network
+    restart: on-failure:12
+    environment:
+      SERVICE_8080_NAME: "contacts-service"
+      spring_profiles_active: "dev,actuator"
+      consul_service: consul-server-bootstrap
+
+networks:
+  common-network:
+

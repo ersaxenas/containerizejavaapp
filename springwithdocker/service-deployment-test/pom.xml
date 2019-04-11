@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>service-deployment-test</artifactId>
+    <parent>
+        <artifactId>containerize</artifactId>
+        <groupId>com.lrn</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <container-name-prefix>cntr</container-name-prefix>
+        <!--        <cleanupContainers>-->
+        <!--            ${prefix}_cleanprevious_1-->
+        <!--        </cleanupContainers>-->
+        <!--        <startupContainers>-->
+        <!--            ${prefix}_repositoryforrestoreblue_1-->
+        <!--            ${prefix}_repositoryforbackupred_1-->
+        <!--            ${prefix}_deploymentcheckred_1-->
+        <!--            ${prefix}_deploymentcheckblue_1-->
+        <!--        </startupContainers>-->
+        <consul-container>
+            ${container-name-prefix}_registrator-service_1
+            ${container-name-prefix}_consul-agent-2_1
+            ${container-name-prefix}_consul-server-1_1
+            ${container-name-prefix}_consul-agent-3_1
+            ${container-name-prefix}_consul-server-bootstrap_1
+            ${container-name-prefix}_consul-agent-1_1
+            ${container-name-prefix}_consul-server-2_1
+        </consul-container>
+    </properties>
+    <dependencies>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <!--  plugin for integration test phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <runOrder>alphabetical</runOrder>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>Destroy Existing Clean Room</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>${project.basedir}/src/test/scripts/remove_containers.sh</executable>
+                            <commandlineArgs>${container-name-prefix}</commandlineArgs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Pull Images from repository</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>${project.basedir}/src/test/scripts/pull-images.sh</executable>
+                            <workingDirectory>src/test/containers</workingDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Prep Clean Room Consul Services</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>docker-compose</executable>
+                            <workingDirectory>src/test/containers</workingDirectory>
+                            <commandlineArgs>-p ${container-name-prefix} -f docker-compose-consul.yml up -d</commandlineArgs>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>Prep Clean Room Contact Service</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>docker-compose</executable>
+                            <workingDirectory>src/test/containers</workingDirectory>
+                            <commandlineArgs>-p ${container-name-prefix} -f docker-compose-app.yml up -d</commandlineArgs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Cleanroom Prep Completion</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>${project.basedir}/src/test/scripts/check-container-running-status.sh</executable>
+                            <commandlineArgs>"${consul-container}"</commandlineArgs>
+                        </configuration>
+                    </execution>
+                    <!--                    <execution>-->
+                    <!--                        <id>Wait for restapp service</id>-->
+                    <!--                        <phase>pre-integration-test</phase>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>exec</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <skip>${skipITs}</skip>-->
+                    <!--                            <executable>${project.basedir}/src/test/bash/ping-service.sh</executable>-->
+                    <!--                            <commandlineArgs>"url"</commandlineArgs>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
+
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+</project>

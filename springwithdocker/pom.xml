@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+
+	<groupId>com.lrn</groupId>
+	<artifactId>containerize</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<name>containerizejava</name>
+
+	<modules>
+		<module>restapp</module>
+		<module>restapp-docker</module>
+		<module>service-deployment-test</module>
+	</modules>
+
+	<properties>
+		<versionPrefix>1.0</versionPrefix>
+		<skipITs>false</skipITs>
+
+		<!-- If you don't include this, there will be many warning messages about platform encodings -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+		<dockerDeployRegistryHost/>
+		<dockerDeployTag>latest</dockerDeployTag>
+		<dockerImageName/>
+	</properties>
+
+
+	<dependencyManagement>
+		<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+
+		<!-- TESTING DEPENDENCIES -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.24.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java</artifactId>
+			<version>3.1.1</version>
+			<scope>test</scope>
+		</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+		<build>
+			<pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.8.0</version>
+						<configuration>
+							<encoding>${project.build.sourceEncoding}</encoding>
+							<verbose>false</verbose>
+							<fork>false</fork>
+							<compilerVersion>1.8</compilerVersion>
+							<source>1.8</source>
+							<target>1.8</target>
+							<compilerArgument>-Xlint:unchecked</compilerArgument>
+							<debug>true</debug>
+							<showWarnings>false</showWarnings>
+							<showDeprecation>false</showDeprecation>
+						</configuration>
+					</plugin>
+
+					<!-- Used to set the artifact version -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>versions-maven-plugin</artifactId>
+						<version>2.7</version>
+					</plugin>
+
+					<!-- This is needed to tag git releases -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-scm-plugin</artifactId>
+						<version>1.11.1</version>
+						<configuration>
+							<tag>${project.version}</tag>
+						</configuration>
+					</plugin>
+
+					<!-- This is needed to set version information in the MANIFEST.MF file -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>3.1.1</version>
+						<configuration>
+							<archive>
+								<manifest>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+								</manifest>
+							</archive>
+						</configuration>
+					</plugin>
+
+					<!-- This plugin is necessary to build docker images -->
+					<plugin>
+						<groupId>com.spotify</groupId>
+						<artifactId>dockerfile-maven-plugin</artifactId>
+						<version>1.4.10</version>
+					</plugin>
+
+					<!-- This plugin is necessary to run integration tests -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>2.22.1</version>
+						<executions>
+							<execution>
+								<id>integration-test</id>
+								<goals>
+									<goal>integration-test</goal>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<runOrder>alphabetical</runOrder>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.6.0</version>
+					</plugin>
+
+					<!--- Plugin to build an all-in-one jar -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+						<version>3.2.1</version>
+					</plugin>
+
+					<!-- Plugin to allow the artifact of one sub-module to be copied into another -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>3.1.1</version>
+					</plugin>
+
+					<!-- Source jars for help debugging -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.0.1</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</pluginManagement>
+		</build>
+</project>

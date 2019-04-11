@@ -1,0 +1,6 @@
+docker network create -d macvlan \
+  --subnet=10.0.0.0/24 \
+  --ip-range=10.0.0.0/25 \
+  --gateway=10.0.0.1 \
+  -o parent=enp0s3 \
+  "public"
