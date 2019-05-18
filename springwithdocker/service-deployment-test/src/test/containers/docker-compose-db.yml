@@ -1,0 +1,28 @@
+version: "3.5"
+
+services:
+  contact-h2db:
+    image: c-lrn-h2db
+    ports:
+      - 81
+      - 1521
+    networks:
+      - common-network
+    restart: on-failure:12
+    environment:
+      SERVICE_81_NAME: "contacts-h2db"
+      SERVICE_1521_NAME: "contacts-h2db"
+
+  contact-data-load:
+    image: c-lrn-h2db-data-loader
+    networks:
+      - common-network
+    restart: on-failure:10
+    depends_on:
+      - contact-h2db
+    environment:
+      consul_service: consul-server-bootstrap
+
+networks:
+  common-network:
+

@@ -1,8 +1,0 @@
-
-spring:
-  cloud:
-    consul:
-      discovery:
-        fail-fast: true
-      host: ${consul_service}
-      port: 8500

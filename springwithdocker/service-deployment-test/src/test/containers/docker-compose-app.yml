@@ -1,7 +1,7 @@
 version: "3.5"
 
 services:
-  contact-service:
+  contacts-service:
     image: c-lrn-restapp
     ports:
       - "8090:8080"

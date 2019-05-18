@@ -3,27 +3,24 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>restapp-docker</artifactId>
+    <artifactId>h2-data-loader-docker</artifactId>
     <packaging>pom</packaging>
     <parent>
+        <artifactId>db-docker</artifactId>
         <groupId>com.lrn</groupId>
-        <artifactId>containerize</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
     <properties>
-        <dockerImageName>c-lrn-restapp</dockerImageName>
+        <dockerImageName>c-lrn-h2db-data-loader</dockerImageName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.lrn</groupId>
-            <artifactId>restapp</artifactId>
+            <artifactId>h2db-data-load</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -41,10 +38,12 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.lrn</groupId>
-                                    <artifactId>restapp</artifactId>
+                                    <artifactId>h2db-data-load</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
+                                    <classifier>main</classifier>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <destFileName>h2db-data-load.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -86,5 +85,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

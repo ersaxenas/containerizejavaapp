@@ -92,6 +92,20 @@
                     </execution>
 
                     <execution>
+                        <id>Prep Clean Room DB Services</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>docker-compose</executable>
+                            <workingDirectory>src/test/containers</workingDirectory>
+                            <commandlineArgs>-p ${container-name-prefix} -f docker-compose-db.yml up -d</commandlineArgs>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>Prep Clean Room Contact Service</id>
                         <phase>pre-integration-test</phase>
                         <goals>

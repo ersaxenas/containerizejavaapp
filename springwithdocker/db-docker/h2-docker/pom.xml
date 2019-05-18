@@ -3,27 +3,25 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>restapp-docker</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>h2-docker</artifactId>
+    <packaging>jar</packaging>
     <parent>
+        <artifactId>db-docker</artifactId>
         <groupId>com.lrn</groupId>
-        <artifactId>containerize</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
-        <dockerImageName>c-lrn-restapp</dockerImageName>
+        <dockerImageName>c-lrn-h2db</dockerImageName>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.lrn</groupId>
-            <artifactId>restapp</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -40,9 +38,9 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.lrn</groupId>
-                                    <artifactId>restapp</artifactId>
-                                    <version>${project.version}</version>
+                                    <groupId>com.h2database</groupId>
+                                    <artifactId>h2</artifactId>
+                                    <version>${h2-db-version}</version>
                                     <type>jar</type>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
@@ -86,5 +84,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
