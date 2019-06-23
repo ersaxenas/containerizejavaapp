@@ -65,13 +65,15 @@ public class DBSchemaLoader {
     }
 
     private void createTables(Connection connection) {
-        String contactDetailTableDDL = "CREATE TABLE " +
+        String contactDetailTableDDL = "CREATE TABLE IF NOT EXISTS " +
                 tableName +
-                "(CONTACT_ID INT PRIMARY KEY, " +
+                " (CONTACT_ID INT PRIMARY KEY, " +
                 "NAME VARCHAR, " +
                 "ADDRESS VARCHAR, " +
                 "PHONE VARCHAR, " +
                 "EMAIL VARCHAR, " +
+                "CREATED_DT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"+
+                "UPDATED_DT TIMESTAMP DEFAULT CURRENT_TIMESTAMP"+
                 " )";
         if (!executeSql(contactDetailTableDDL, connection)) {
             logger.error("Failed to create DB table. Please check logs for details.");
@@ -81,11 +83,12 @@ public class DBSchemaLoader {
 
     private boolean executeSql(String sql, Connection connection) {
         try {
-            return connection.createStatement().execute(sql);
+            connection.createStatement().execute(sql);
         } catch (SQLException exp) {
             logger.error("Exception occurred while trying to executed SQL : " + exp.getMessage(), exp);
             return false;
         }
+        return true;
     }
 
     private Optional<Connection> createDb() {

@@ -12,16 +12,7 @@
 
     <properties>
         <container-name-prefix>cntr</container-name-prefix>
-        <!--        <cleanupContainers>-->
-        <!--            ${prefix}_cleanprevious_1-->
-        <!--        </cleanupContainers>-->
-        <!--        <startupContainers>-->
-        <!--            ${prefix}_repositoryforrestoreblue_1-->
-        <!--            ${prefix}_repositoryforbackupred_1-->
-        <!--            ${prefix}_deploymentcheckred_1-->
-        <!--            ${prefix}_deploymentcheckblue_1-->
-        <!--        </startupContainers>-->
-        <consul-container>
+        <service-container>
             ${container-name-prefix}_registrator-service_1
             ${container-name-prefix}_consul-agent-2_1
             ${container-name-prefix}_consul-server-1_1
@@ -29,9 +20,39 @@
             ${container-name-prefix}_consul-server-bootstrap_1
             ${container-name-prefix}_consul-agent-1_1
             ${container-name-prefix}_consul-server-2_1
-        </consul-container>
+            ${container-name-prefix}_kafka-broker1_1
+            ${container-name-prefix}_kafka-broker2_1
+            ${container-name-prefix}_kafka-broker3_1
+            ${container-name-prefix}_zookeeper-server_1
+            ${container-name-prefix}_contact-h2db_1
+            ${container-name-prefix}_contacts-service_1
+        </service-container>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.lrn</groupId>
+            <artifactId>h2-docker</artifactId>
+            <type>pom</type>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lrn</groupId>
+            <artifactId>h2-data-loader-docker</artifactId>
+            <type>pom</type>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lrn</groupId>
+            <artifactId>restapp-docker</artifactId>
+            <type>pom</type>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lrn</groupId>
+            <artifactId>kafka-admin-docker</artifactId>
+            <type>pom</type>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -106,6 +127,20 @@
                     </execution>
 
                     <execution>
+                        <id>Prep Clean Kafka Service</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>docker-compose</executable>
+                            <workingDirectory>src/test/containers</workingDirectory>
+                            <commandlineArgs>-p ${container-name-prefix} -f docker-compose-kafka.yml up -d</commandlineArgs>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>Prep Clean Room Contact Service</id>
                         <phase>pre-integration-test</phase>
                         <goals>
@@ -118,6 +153,7 @@
                             <commandlineArgs>-p ${container-name-prefix} -f docker-compose-app.yml up -d</commandlineArgs>
                         </configuration>
                     </execution>
+
                     <execution>
                         <id>Cleanroom Prep Completion</id>
                         <phase>pre-integration-test</phase>
@@ -127,25 +163,36 @@
                         <configuration>
                             <skip>${skipITs}</skip>
                             <executable>${project.basedir}/src/test/scripts/check-container-running-status.sh</executable>
-                            <commandlineArgs>"${consul-container}"</commandlineArgs>
+                            <commandlineArgs>"${service-container}"</commandlineArgs>
                         </configuration>
                     </execution>
-                    <!--                    <execution>-->
-                    <!--                        <id>Wait for restapp service</id>-->
-                    <!--                        <phase>pre-integration-test</phase>-->
-                    <!--                        <goals>-->
-                    <!--                            <goal>exec</goal>-->
-                    <!--                        </goals>-->
-                    <!--                        <configuration>-->
-                    <!--                            <skip>${skipITs}</skip>-->
-                    <!--                            <executable>${project.basedir}/src/test/bash/ping-service.sh</executable>-->
-                    <!--                            <commandlineArgs>"url"</commandlineArgs>-->
-                    <!--                        </configuration>-->
-                    <!--                    </execution>-->
-
+                    <execution>
+                        <id>Wait for restapp service</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>${project.basedir}/src/test/scripts/check-service-with-curl.sh</executable>
+                            <commandlineArgs>"http://localhost:8090/actuator/health"</commandlineArgs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Prep Clean Room Run Kafka admin service</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>docker-compose</executable>
+                            <workingDirectory>src/test/containers</workingDirectory>
+                            <commandlineArgs>-p ${container-name-prefix} -f docker-compose-kafka-admin.yml up -d</commandlineArgs>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

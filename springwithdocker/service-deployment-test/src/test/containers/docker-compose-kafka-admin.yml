@@ -1,0 +1,16 @@
+version: "3.5"
+
+services:
+  kafka-admin-util:
+    image: c-lrn-kafka-admin-docker
+    networks:
+      - common-network
+    restart: on-failure:12
+    environment:
+      consul_service: consul-agent-1
+      consul_service_port: "8500"
+      kafka_service: "kafka"
+
+networks:
+  common-network:
+
