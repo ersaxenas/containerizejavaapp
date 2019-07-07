@@ -29,29 +29,78 @@
         </service-container>
     </properties>
     <dependencies>
+        <!--  Docker image dependencies      -->
         <dependency>
             <groupId>com.lrn</groupId>
             <artifactId>h2-docker</artifactId>
             <type>pom</type>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.lrn</groupId>
             <artifactId>h2-data-loader-docker</artifactId>
             <type>pom</type>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.lrn</groupId>
             <artifactId>restapp-docker</artifactId>
             <type>pom</type>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.lrn</groupId>
             <artifactId>kafka-admin-docker</artifactId>
             <type>pom</type>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.lrn</groupId>
+            <artifactId>kafka-data-loader-docker</artifactId>
+            <type>pom</type>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--  Integration test dependencies      -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ecwid.consul</groupId>
+            <artifactId>consul-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -191,10 +240,22 @@
                             <commandlineArgs>-p ${container-name-prefix} -f docker-compose-kafka-admin.yml up -d</commandlineArgs>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>Prep Clean Room Run Kafka data loader</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipITs}</skip>
+                            <executable>docker-compose</executable>
+                            <workingDirectory>src/test/containers</workingDirectory>
+                            <commandlineArgs>-p ${container-name-prefix} -f docker-compose-kafka-data-loader.yml up -d</commandlineArgs>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-
 
 </project>

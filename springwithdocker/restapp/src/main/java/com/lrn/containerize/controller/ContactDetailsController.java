@@ -2,6 +2,7 @@ package com.lrn.containerize.controller;
 
 import com.lrn.containerize.dao.ContactDao;
 import com.lrn.containerize.model.ContactDetails;
+import com.lrn.containerize.service.ContactDetailService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -21,13 +22,14 @@ import java.util.Optional;
 public class ContactDetailsController {
     private final Logger logger = LoggerFactory.getLogger(ContactDetailsController.class);
 
+
     @Autowired
-    ContactDao contactDao;
+    ContactDetailService contactDetailService;
 
     @RequestMapping(method = RequestMethod.GET, path = "/contact/{userId}", produces = "application/json")
     public ResponseEntity<ContactDetails> getContactDetail(@PathVariable String userId) {
         logger.debug("Fetching contact details for user id:" + userId);
-        Optional<ContactDetails> contactDetail = contactDao.getContactDetail(userId);
+        Optional<ContactDetails> contactDetail = contactDetailService.getContact(userId);
         ResponseEntity<ContactDetails> responseEntity;
         if(contactDetail.isPresent()) {
             responseEntity =  ResponseEntity.ok().body(contactDetail.get());
@@ -46,7 +48,7 @@ public class ContactDetailsController {
         if(StringUtils.isNotBlank(pageNo) && NumberUtils.isDigits(pageNo)) {
             lPageNo = Integer.valueOf(pageNo);
         }
-        List<ContactDetails> contactDetailsList = contactDao.getContacts(lPageSize, lPageNo);
+        List<ContactDetails> contactDetailsList = contactDetailService.getContacts(lPageSize, lPageNo);
         ResponseEntity<List<ContactDetails>> responseEntity;
         if(!contactDetailsList.isEmpty()) {
             responseEntity =  ResponseEntity.ok().body(contactDetailsList);
@@ -55,5 +57,4 @@ public class ContactDetailsController {
         }
         return responseEntity;
     }
-
 }

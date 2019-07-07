@@ -12,6 +12,7 @@ services:
       SERVICE_8080_NAME: "contacts-service"
       spring_profiles_active: "dev,actuator"
       consul_service: consul-server-bootstrap
+      kafka_service: "kafka"
 
 networks:
   common-network:

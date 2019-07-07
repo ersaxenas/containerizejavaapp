@@ -5,12 +5,12 @@ import com.ecwid.consul.v1.QueryParams;
 import com.ecwid.consul.v1.Response;
 import com.ecwid.consul.v1.health.HealthServicesRequest;
 import com.ecwid.consul.v1.health.model.HealthService;
-import org.apache.commons.lang3.tuple.*;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.errors.TopicExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,26 +31,27 @@ public class KafkaTopicAdminMain {
         logger.debug("consul_service_port = " + consult_agent_port);
         logger.debug("kafka_service = " + kafkaService);
         Optional<List<Triple<String, String, Integer>>> kafkaServiceAddList = getServiceServerAndPortFromConsul(consul_agent, Integer.valueOf(consult_agent_port), kafkaService);
-        if(kafkaServiceAddList.isPresent()) {
+        if (kafkaServiceAddList.isPresent()) {
             String kafkaBrokers = kafkaServiceAddList.get().stream().map(serviceAddress -> serviceAddress.getMiddle() + ":" + serviceAddress.getRight()).collect(Collectors.joining(","));
             logger.debug("Kafka brokers config :" + kafkaBrokers);
-            Properties kafakClientConfig = new Properties();
-            kafakClientConfig.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
-            AdminClient adminClient = AdminClient.create(kafakClientConfig);
+            Properties kafkaClientConfig = new Properties();
+            kafkaClientConfig.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers);
+            AdminClient adminClient = AdminClient.create(kafkaClientConfig);
             topicNames.forEach(topicName -> {
                 CreateTopicsResult createTopicsResult = adminClient.createTopics(Arrays.asList(new NewTopic(topicName, 3, (short) 1)));
                 try {
                     createTopicsResult.values().get(topicName).get();
                 } catch (InterruptedException | ExecutionException exp) {
-                    if(exp.getCause().getClass().isAssignableFrom(TopicExistsException.class)) {
-                      logger.debug("Topic already exists : "+ topicName);
+                    if (exp.getCause().getClass().isAssignableFrom(TopicExistsException.class)) {
+                        logger.debug("Topic already exists : " + topicName);
                     } else {
-                        logger.error("Failed to create topic" +  exp.getLocalizedMessage(), exp);
-                        throw new RuntimeException("Failed to create topic "+ exp.getLocalizedMessage(), exp);
+                        logger.error("Failed to create topic" + exp.getLocalizedMessage(), exp);
+                        throw new RuntimeException("Failed to create topic " + exp.getLocalizedMessage(), exp);
                     }
                 }
-                logger.info("Topic {} successfully created.", topicName );
+                logger.info("Topic {} successfully created.", topicName);
             });
+            adminClient.close();
         } else {
             logger.info("Kakfa is not available. System cannot proceed ahead.  required service" + kafkaService);
         }
@@ -60,7 +61,6 @@ public class KafkaTopicAdminMain {
         KafkaTopicAdminMain kafkaTopicAdminMain = new KafkaTopicAdminMain();
         kafkaTopicAdminMain.createKafkaTopics();
     }
-
 
 
     private void checkServiceFromLocal() {
@@ -82,13 +82,14 @@ public class KafkaTopicAdminMain {
     }
 
     public Optional<List<Triple<String, String, Integer>>> getServiceServerAndPortFromConsul(String consulAgent, Integer port, String serviceName) {
-        ConsulClient consulClient = new ConsulClient(consulAgent, port);
+        ConsulClient consulClient = new ConsulClient
+                (consulAgent, port);
         HealthServicesRequest healthServicesRequest = HealthServicesRequest.newBuilder()
                 .setPassing(true)
                 .setQueryParams(QueryParams.DEFAULT)
                 .build();
         Response<List<HealthService>> healthServices = consulClient.getHealthServices(serviceName, healthServicesRequest);
-        if(healthServices.getValue() == null || healthServices.getValue().isEmpty()) {
+        if (healthServices.getValue() == null || healthServices.getValue().isEmpty()) {
             logger.info("service not found : {}", serviceName);
             return Optional.empty();
         }

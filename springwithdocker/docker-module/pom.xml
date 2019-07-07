@@ -15,6 +15,7 @@
         <module>h2-data-loader-docker</module>
         <module>restapp-docker</module>
         <module>kafka-admin-docker</module>
+        <module>kafka-data-loader-docker</module>
     </modules>
 
 </project>

@@ -8,8 +8,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient(autoRegister = false)
 public class ContainerizeApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ContainerizeApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ContainerizeApplication.class, args);
+    }
 
 }

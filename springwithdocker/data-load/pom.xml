@@ -12,5 +12,6 @@
     </parent>
     <modules>
         <module>h2db-data-load</module>
+        <module>kafka-data-load</module>
     </modules>
 </project>
