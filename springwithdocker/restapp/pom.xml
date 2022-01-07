@@ -18,7 +18,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <h2-db-version>1.4.199</h2-db-version>
+        <h2-db-version>2.0.206</h2-db-version>
     </properties>
 
     <dependencies>

@@ -28,7 +28,7 @@
         <dockerDeployRegistryHost/>
         <dockerDeployTag>latest</dockerDeployTag>
         <dockerImageName/>
-        <h2-db-version>1.4.199</h2-db-version>
+        <h2-db-version>2.0.206</h2-db-version>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
     </properties>
